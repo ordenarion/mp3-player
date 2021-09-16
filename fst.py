@@ -61,7 +61,7 @@ class GUI:
 
 class GUI2:
     def __init__(self):
-
+        self.pause_status = True
         self.window = tk.Tk()
         self.window.geometry("1280x720")
 
@@ -98,17 +98,29 @@ class GUI2:
         self.frame2 = tk.Frame()
         self.frame2.pack(fill="x",ipadx=100)
 
-        self.label3 = tk.Label(self.frame2,text="song name/current time/soundbar", bg="white")
-        self.label3.pack(fill="x",ipadx=20,ipady=15,expand = 1)
+        self.label3 = tk.Label(self.frame2,text="current time of song/soundbar", bg="white")
+        self.label3.pack(fill="x",ipadx=20,ipady=10,expand = 1)
 
         self.frame3 = tk.Frame()
-        self.frame3.pack()
+        self.frame3.pack(padx=10,expand = True,fill="both",side="left")
 
-        self.label4 = tk.Label(self.frame3, text="buttons(play,pause,next,previous)", bg="green")
-        self.label4.pack(padx=0,pady=10,ipady=20,side="left")
+        self.prev_button = tk.Button(self.frame3, text="<<")
+        self.prev_button.pack(padx=0,pady=10,ipady=5,ipadx=5,side="left")
 
-        self.label4 = tk.Label(self.frame3, text="volume settings", bg="yellow")
-        self.label4.pack(padx=5, pady=10,ipadx=20, ipady=20,side="left")
+        self.pause_play_button = tk.Button(self.frame3, text="||",command = self.change_pause_play_icon)
+        self.pause_play_button.pack(padx=10, pady=10, ipady=10, ipadx=10, side="left")
+
+        self.next_button = tk.Button(self.frame3, text=">>")
+        self.next_button.pack(padx=0, pady=10, ipady=5, ipadx=5, side="left")
+
+        self.song_name = tk.Label(self.frame3, text="song name",bg = "green")
+        self.song_name.pack(padx=20, pady=10, ipady=10, ipadx = 400, side="left")
+
+        self.frame4 = tk.Frame()
+        self.frame4.pack(expand = True,fill="both",side="left")
+
+        self.label4 = tk.Label(self.frame4, text="volume settings", bg="yellow")
+        self.label4.pack(padx=10, pady=10,ipadx=50, ipady=20)
         #self.top_frame = tk.Frame(self.window)
         #self.top_frame.pack(side="left")
 
@@ -126,5 +138,13 @@ class GUI2:
         #self.butt.pack(pady=100)
         #self.label.pack(fill="y")
         self.window.mainloop()
+
+    def change_pause_play_icon(self):
+        if self.pause_status:
+            self.pause_play_button.config(text= "ы")
+            self.pause_status = False
+        else:
+            self.pause_play_button.config(text = "||")
+            self.pause_status = True
 
 f=GUI2()
