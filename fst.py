@@ -61,6 +61,7 @@ class GUI:
 
 class GUI2:
     def __init__(self):
+        self.prev_status = True
         self.pause_status = True
         self.window = tk.Tk()
         self.window.geometry("1280x720")
@@ -82,18 +83,30 @@ class GUI2:
 
 
 
-        self.frame1 = tk.Frame()
-        self.frame1.pack(side = "top",pady=10,padx=10,)
+        self.songs_scroll_frame = tk.Frame()
+        self.songs_scroll_frame.pack(expand = True, fill="both", pady=10, padx=10, )
 
-        self.box = tk.Listbox(self.frame1, selectmode="extended")
+        self.buttons_collumn_frame = tk.Frame(self.songs_scroll_frame)
+        self.buttons_collumn_frame.pack(expand=True, side="right")
+
+        self.box = tk.Listbox(self.songs_scroll_frame, selectmode="extended")
         self.box.pack(side="left",padx=15,pady=15,ipady=200,ipadx=300,fill="both",expand = True)
 
-        self.scroll = tk.Scrollbar(self.frame1,command=self.box.yview)
+        self.scroll = tk.Scrollbar(self.songs_scroll_frame, command=self.box.yview)
         self.scroll.pack(side="left",ipady=255,)
         self.box.config(yscrollcommand=self.scroll.set)
 
-        self.label2 = tk.Label(self.frame1,text="playlists block", bg="red")
-        self.label2.pack(ipady=275,ipadx=300,expand = True,fill="both",side="left")
+
+
+        self.prev1_button = tk.Button(self.buttons_collumn_frame, text="<<", command=self.state_tst, height=2, width=2)
+        self.prev1_button.pack(padx=0, pady=2, ipady=5, ipadx=5,expand = True)
+
+        self.prev2_button = tk.Button(self.buttons_collumn_frame, text="<<", command=self.state_tst, height=2, width=2)
+        self.prev2_button.pack(padx=0, pady=2, ipady=5, ipadx=5, expand=True,side = "left")
+
+        self.label2 = tk.Label(self.songs_scroll_frame,text="playlists block", bg="red")
+        self.label2.pack(ipady=275,ipadx=300,expand = True,fill="both",side="right")
+
 
         self.frame2 = tk.Frame()
         self.frame2.pack(fill="x",ipadx=100)
@@ -104,17 +117,17 @@ class GUI2:
         self.frame3 = tk.Frame()
         self.frame3.pack(padx=10,expand = True,fill="both",side="left")
 
-        self.prev_button = tk.Button(self.frame3, text="<<")
+        self.prev_button = tk.Button(self.frame3, text="<<",command = self.state_tst)
         self.prev_button.pack(padx=0,pady=10,ipady=5,ipadx=5,side="left")
 
-        self.pause_play_button = tk.Button(self.frame3, text="||",command = self.change_pause_play_icon)
+        self.pause_play_button = tk.Button(self.frame3, text="||",command = self.change_pause_play_icon,height = 2, width= 2)
         self.pause_play_button.pack(padx=10, pady=10, ipady=10, ipadx=10, side="left")
 
         self.next_button = tk.Button(self.frame3, text=">>")
         self.next_button.pack(padx=0, pady=10, ipady=5, ipadx=5, side="left")
 
         self.song_name = tk.Label(self.frame3, text="song name",bg = "green")
-        self.song_name.pack(padx=20, pady=10, ipady=10, ipadx = 400, side="left")
+        self.song_name.pack(padx=20, pady=10, ipady=10, ipadx = 420, side="left")
 
         self.frame4 = tk.Frame()
         self.frame4.pack(expand = True,fill="both",side="left")
@@ -147,4 +160,12 @@ class GUI2:
             self.pause_play_button.config(text = "||")
             self.pause_status = True
 
+
+    def state_tst(self):
+        if self.prev_status:
+            self.prev_button.config(relief="sunken")
+            self.prev_status= False
+        else:
+            self.prev_button.config(relief="raised")
+            self.prev_status = True
 f=GUI2()
