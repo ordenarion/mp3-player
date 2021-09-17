@@ -84,10 +84,10 @@ class GUI2:
 
 
         self.songs_scroll_frame = tk.Frame()
-        self.songs_scroll_frame.pack(expand = True, fill="both", pady=10, padx=10, )
+        self.songs_scroll_frame.pack(expand = True, fill="both", pady=10, padx=10,side="top" )
 
         self.buttons_collumn_frame = tk.Frame(self.songs_scroll_frame)
-        self.buttons_collumn_frame.pack(expand=True, side="right")
+        self.buttons_collumn_frame.pack(expand=True,side="right")
 
         self.box = tk.Listbox(self.songs_scroll_frame, selectmode="extended")
         self.box.pack(side="left",padx=15,pady=15,ipady=200,ipadx=300,fill="both",expand = True)
@@ -97,6 +97,8 @@ class GUI2:
         self.box.config(yscrollcommand=self.scroll.set)
 
 
+        self.queue_playlist_frame = tk.Frame(self.songs_scroll_frame)
+        self.queue_playlist_frame.pack(expand=True,padx=10,side="right")
 
         self.prev1_button = tk.Button(self.buttons_collumn_frame, text="<<", command=self.state_tst, height=2, width=2)
         self.prev1_button.pack(padx=0, pady=2, ipady=5, ipadx=5,expand = True)
@@ -104,7 +106,7 @@ class GUI2:
         self.prev2_button = tk.Button(self.buttons_collumn_frame, text="<<", command=self.state_tst, height=2, width=2)
         self.prev2_button.pack(padx=0, pady=2, ipady=5, ipadx=5, expand=True,side = "left")
 
-        self.label2 = tk.Label(self.songs_scroll_frame,text="playlists block", bg="red")
+        self.label2 = tk.Label(self.queue_playlist_frame,text="playlists block", bg="red")
         self.label2.pack(ipady=275,ipadx=300,expand = True,fill="both",side="right")
 
 
