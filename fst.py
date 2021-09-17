@@ -71,18 +71,20 @@ class GUI2:
         self.songs_scroll_frame = tk.Frame()
         self.songs_scroll_frame.pack(expand=True, fill="both", pady=10, padx=10, side="top")
 
-        self.buttons_collumn_frame = tk.Frame(self.songs_scroll_frame)
-        self.buttons_collumn_frame.pack(expand=True, side="right")
-
-        self.box = tk.Listbox(self.songs_scroll_frame, selectmode="extended")
-        self.box.pack(side="left", padx=15, pady=15, ipady=200, ipadx=300, fill="both", expand=True)
+        self.box = tk.Listbox(self.songs_scroll_frame, selectmode="single")  # "extended"
+        self.box.pack(side="left", padx=15, pady=15, ipady=200, ipadx=100, fill="both", expand=True)
 
         self.scroll = tk.Scrollbar(self.songs_scroll_frame, command=self.box.yview)
         self.scroll.pack(side="left", ipady=255, )
         self.box.config(yscrollcommand=self.scroll.set)
 
+        self.buttons_collumn_frame = tk.Frame(self.songs_scroll_frame)
+        self.buttons_collumn_frame.pack(expand=True, side="left")
+
         self.queue_playlist_frame = tk.Frame(self.songs_scroll_frame)
-        self.queue_playlist_frame.pack(expand=True, padx=10, side="right")
+        self.queue_playlist_frame.pack(expand=True, padx=10,fill="both")
+
+
 
         self.prev1_button = tk.Button(self.buttons_collumn_frame, text="<<", command=self.state_tst, height=2, width=4)
         self.prev1_button.pack(padx=2, pady=2, ipady=5, ipadx=5, expand=True)
@@ -97,7 +99,7 @@ class GUI2:
         self.prev4_button.pack(padx=0, pady=2, ipady=5, ipadx=5, expand=True)
 
         self.label2 = tk.Label(self.queue_playlist_frame, text="playlists block", bg="red")
-        self.label2.pack(ipady=275, ipadx=300, expand=True, fill="both", side="right")
+        self.label2.pack(ipady=275, ipadx=400, expand=True, fill="both")
 
         self.frame2 = tk.Frame()
         self.frame2.pack(fill="x", ipadx=100)
@@ -111,8 +113,7 @@ class GUI2:
         self.prev_button = tk.Button(self.frame3, text="<<", command=self.state_tst)
         self.prev_button.pack(padx=0, pady=10, ipady=5, ipadx=5, side="left")
 
-        self.pause_play_button = tk.Button(self.frame3, text="||", command=self.change_pause_play_icon, height=2,
-                                           width=2)
+        self.pause_play_button = tk.Button(self.frame3, text="||", command=self.change_pause_play_icon, height=2, width=2)
         self.pause_play_button.pack(padx=10, pady=10, ipady=10, ipadx=10, side="left")
 
         self.next_button = tk.Button(self.frame3, text=">>")
