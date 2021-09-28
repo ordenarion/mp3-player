@@ -1,5 +1,8 @@
 import tkinter as tk
-
+from functions import add_track,play_pause,plus_volume,minus_volume
+from tkinter import messagebox
+import pygame as pg
+import easygui as eg
 
 class GUI:
     def __init__(self):
@@ -52,8 +55,11 @@ class GUI:
 
 class GUI2:
     def __init__(self):
+        pg.init()
         self.prev_status = True
         self.pause_status = True
+        self.container = {}
+        self.startQ = False
         self.window = tk.Tk()
         self.window.geometry("1280x720")
 
@@ -64,14 +70,14 @@ class GUI2:
 
         self.menu.add_cascade(label="Menu", menu=self.file_menu)
 
-        self.file_menu.add_command(label="Add Songs", command=self.window.destroy)
+        self.file_menu.add_command(label="Add Songs", command=self.add_new_track)
         self.file_menu.add_separator()
         self.file_menu.add_command(label="Exit")
 
         self.songs_scroll_frame = tk.Frame()
         self.songs_scroll_frame.pack(expand=True, fill="both", pady=10, padx=10, side="top")
 
-        self.box = tk.Listbox(self.songs_scroll_frame, selectmode="single")  # "extended"
+        self.box = tk.Listbox(self.songs_scroll_frame, selectmode="single",font=("Times",10))  # "extended"
         self.box.pack(side="left", padx=15, pady=15, ipady=200, ipadx=100, fill="both", expand=True)
 
         self.scroll = tk.Scrollbar(self.songs_scroll_frame, command=self.box.yview)
@@ -113,7 +119,7 @@ class GUI2:
         self.prev_button = tk.Button(self.frame3, text="<<", command=self.state_tst)
         self.prev_button.pack(padx=0, pady=10, ipady=5, ipadx=5, side="left")
 
-        self.pause_play_button = tk.Button(self.frame3, text="||", command=self.change_pause_play_icon, height=2, width=2)
+        self.pause_play_button = tk.Button(self.frame3, text="||", command=self.play_pause, height=2, width=2)
         self.pause_play_button.pack(padx=10, pady=10, ipady=10, ipadx=10, side="left")
 
         self.next_button = tk.Button(self.frame3, text=">>")
@@ -125,8 +131,8 @@ class GUI2:
         self.frame4 = tk.Frame()
         self.frame4.pack(expand=True, fill="both", side="left")
 
-        self.label4 = tk.Label(self.frame4, text="volume settings", bg="yellow")
-        self.label4.pack(padx=10, pady=10, ipadx=50, ipady=20)
+        self.label4 = tk.Scale(self.frame4, from_=0, to = 100, orient = "horizontal",tickinterval = 0.1)
+        self.label4.pack(padx=10, pady=5, ipadx=50, ipady=20)
         # self.top_frame = tk.Frame(self.window)
         # self.top_frame.pack(side="left")
 
@@ -144,14 +150,52 @@ class GUI2:
         # self.butt.pack(pady=100)
         # self.label.pack(fill="y")
         self.window.mainloop()
+    def add_new_track(self):
+
+        if self.add_track():
+            self.box.insert("end",self.music_file)
+        else:
+            messagebox.showerror("Ошибка","Неверный формат файла")
+
+    def add_track(self):
+        # открывает проводник, чтобы пользователь смог выбрать музыкальный файл
+        self.music_file = eg.fileopenbox()
+
+        # если файл нужного формата, то он загружается в проигрыватель и возвращается путь файла
+        try:
+            self.to_add = pg.mixer.music.load(self.music_file)
+            return True
+        # если файл неверного формата, то функция возвращает строку с соответствующим сообщением
+        except:
+            return False
+
+    def play_pause(self):
+        if self.box.size() == 0:
+            pass
+        else:
+            if self.startQ:
+                self.start_song()
+            else:
+                pg.mixer.music.play()
+                self.startQ = not self.startQ
+
+            self.change_pause_play_icon()
+            self.pause_status = not self.pause_status
+
 
     def change_pause_play_icon(self):
         if self.pause_status:
             self.pause_play_button.config(text="ы")
-            self.pause_status = False
         else:
             self.pause_play_button.config(text="||")
-            self.pause_status = True
+
+    def start_song(self):
+
+        if self.pause_status:
+            pg.mixer.music.unpause()
+        else:
+            pg.mixer.music.pause()
+
 
     def state_tst(self):
         if self.prev_status:
