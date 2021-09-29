@@ -56,12 +56,16 @@ class GUI:
 class GUI2:
     def __init__(self):
         pg.init()
+        self.lvl = 0.5
         self.prev_status = True
         self.pause_status = True
         self.container = {}
+
         self.startQ = False
         self.window = tk.Tk()
         self.window.geometry("1280x720")
+        self.scale_var = tk.DoubleVar()
+        self.scale_var = self.lvl
 
         self.menu = tk.Menu(self.window)
         self.window.config(menu=self.menu)
@@ -116,13 +120,13 @@ class GUI2:
         self.frame3 = tk.Frame()
         self.frame3.pack(padx=10, expand=True, fill="both", side="left")
 
-        self.prev_button = tk.Button(self.frame3, text="<<", command=self.state_tst)
+        self.prev_button = tk.Button(self.frame3, text="<<", command = self.set_volume_down)#command=self.state_tst)
         self.prev_button.pack(padx=0, pady=10, ipady=5, ipadx=5, side="left")
 
         self.pause_play_button = tk.Button(self.frame3, text="||", command=self.play_pause, height=2, width=2)
         self.pause_play_button.pack(padx=10, pady=10, ipady=10, ipadx=10, side="left")
 
-        self.next_button = tk.Button(self.frame3, text=">>")
+        self.next_button = tk.Button(self.frame3, text=">>",command = self.set_volume_up)
         self.next_button.pack(padx=0, pady=10, ipady=5, ipadx=5, side="left")
 
         self.song_name = tk.Label(self.frame3, text="song name", bg="green")
@@ -131,11 +135,13 @@ class GUI2:
         self.frame4 = tk.Frame()
         self.frame4.pack(expand=True, fill="both", side="left")
 
-        self.label4 = tk.Scale(self.frame4, from_=0, to = 100, orient = "horizontal",tickinterval = 0.1)
+        self.label4 = tk.Scale(self.frame4, from_=0, to = 100, sliderlength = 25,showvalue = 1,length = 1000,orient = "horizontal",variable = self.scale_var,tickinterval = 0.1)#command = pass)
         self.label4.pack(padx=10, pady=5, ipadx=50, ipady=20)
+
+        self.label4.set(self.lvl*100)
         # self.top_frame = tk.Frame(self.window)
         # self.top_frame.pack(side="left")
-
+        #pg.mixer.set_voulume(self.scale_var*0.01)
         # self.bot_frame = tk.Frame(self.window)
         # self.bot_frame.pack(side = "bottom")
 
@@ -205,5 +211,19 @@ class GUI2:
             self.prev_button.config(relief="raised")
             self.prev_status = True
 
+    def set_volume_down(self):
+        if self.lvl == 0:
+            pass
+        else:
+            pg.mixer.music.set_volume(self.lvl-0.1)
+            self.lvl -= 0.1
+            self.label4.set(self.lvl*100)
 
+    def set_volume_up(self):
+        if self.lvl == 1.0:
+            pass
+        else:
+            pg.mixer.music.set_volume(self.lvl + 0.1)
+            self.lvl += 0.1
+            self.label4.set(self.lvl*100)
 f = GUI2()
