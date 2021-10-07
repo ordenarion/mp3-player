@@ -159,7 +159,8 @@ class GUI2:
     def add_new_track(self):
 
         if self.add_track():
-            self.box.insert("end",self.music_file)
+            a= "\\"
+            self.box.insert("end",self.music_file.split(a)[-1])
         else:
             messagebox.showerror("Ошибка","Неверный формат файла")
 
