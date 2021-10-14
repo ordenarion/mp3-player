@@ -1,9 +1,24 @@
+import time
 import tkinter as tk
 from functions import add_track,play_pause,plus_volume,minus_volume
 from tkinter import messagebox
 import pygame as pg
 import easygui as eg
+import time as tm
+import threading
 
+class TimeDude:
+    def __init__(self,tie = 0):
+        self.time = tie
+
+    @staticmethod
+    def time_update(gui):
+        gui.time+= 1
+        tm.sleep(10000)
+        gui.label3.config(text = f"{gui.time}")
+    @staticmethod
+    def time_ip(gui):
+        gui.label3.config()
 class GUI:
     def __init__(self):
         self.window = tk.Tk()
@@ -56,10 +71,14 @@ class GUI:
 class GUI2:
     def __init__(self):
         pg.init()
+        #self.x = TimeDude()
+        self.flag = False
         self.lvl = 0.5
         self.prev_status = True
         self.pause_status = True
         self.container = {}
+        self.time = 0
+        #self.x.time_update(self)
 
         self.startQ = False
         self.window = tk.Tk()
@@ -105,7 +124,7 @@ class GUI2:
         self.prev3_button = tk.Button(self.buttons_collumn_frame, text="<<", command=self.state_tst, height=2, width=4)
         self.prev3_button.pack(padx=0, pady=2, ipady=5, ipadx=5, expand=True)
 
-        self.prev4_button = tk.Button(self.buttons_collumn_frame, text="<<", command=self.state_tst, height=2, width=4)
+        self.prev4_button = tk.Button(self.buttons_collumn_frame, text="tst", command=self.asdsd, height=2, width=4)
         self.prev4_button.pack(padx=0, pady=2, ipady=5, ipadx=5, expand=True)
 
         self.label2 = tk.Label(self.queue_playlist_frame, text="playlists block", bg="red")
@@ -114,7 +133,7 @@ class GUI2:
         self.frame2 = tk.Frame()
         self.frame2.pack(fill="x", ipadx=100)
 
-        self.label3 = tk.Label(self.frame2, text="current time of song/soundbar", bg="white")
+        self.label3 = tk.Label(self.frame2, text="current time of song/soundbar\n0:00", bg="white")
         self.label3.pack(fill="x", ipadx=20, ipady=10, expand=1)
 
         self.frame3 = tk.Frame()
@@ -155,7 +174,13 @@ class GUI2:
         # self.label = tk.Label(self.bot_frame,text=f"{self.minutes} : {self.seconds}  ",width = 100,height = 100,font = 120)
         # self.butt.pack(pady=100)
         # self.label.pack(fill="y")
+
         self.window.mainloop()
+    def asdsd(self):
+        while not self.flag:
+            t = threading.Thread(target=TimeDude.time_update(self))
+            t.start()
+
     def add_new_track(self):
 
         if self.add_track():
@@ -206,10 +231,10 @@ class GUI2:
 
     def state_tst(self):
         if self.prev_status:
-            self.prev_button.config(relief="sunken")
+            self.prev1_button.config(relief="sunken")
             self.prev_status = False
         else:
-            self.prev_button.config(relief="raised")
+            self.prev1_button.config(relief="raised")
             self.prev_status = True
 
     def set_volume_down(self):
@@ -227,4 +252,8 @@ class GUI2:
             pg.mixer.music.set_volume(self.lvl + 0.1)
             self.lvl += 0.1
             self.label4.set(self.lvl*100)
+
+    def start_curr_track(self):
+        pass
+
 f = GUI2()
