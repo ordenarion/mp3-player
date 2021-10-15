@@ -13,9 +13,20 @@ class TimeDude:
 
     @staticmethod
     def time_update(gui):
-        gui.time+= 1
-        tm.sleep(10000)
-        gui.label3.config(text = f"{gui.time}")
+        def count():
+            if gui.running:
+                if gui.counter == -1:
+                    display = f"Текущее время трека:\n 0:0"
+                else:
+                    tmp = divmod(gui.counter,60)
+                    display = f"Текущее время трека:\n {tmp[0]}:{tmp[1]}"
+
+                gui.label3['text'] = display
+
+                gui.label3.after(1000, count)
+                gui.counter += 1
+
+        count()
     @staticmethod
     def time_ip(gui):
         gui.label3.config()
@@ -73,13 +84,14 @@ class GUI2:
         pg.init()
         #self.x = TimeDude()
         self.flag = False
+        self.counter =-1
         self.lvl = 0.5
         self.prev_status = True
         self.pause_status = True
         self.container = {}
         self.time = 0
         #self.x.time_update(self)
-
+        self.running = False
         self.startQ = False
         self.window = tk.Tk()
         self.window.geometry("1280x720")
@@ -133,7 +145,7 @@ class GUI2:
         self.frame2 = tk.Frame()
         self.frame2.pack(fill="x", ipadx=100)
 
-        self.label3 = tk.Label(self.frame2, text="current time of song/soundbar\n0:00", bg="white")
+        self.label3 = tk.Label(self.frame2, text="current time of song/soundbar\n0:0", bg="white")
         self.label3.pack(fill="x", ipadx=20, ipady=10, expand=1)
 
         self.frame3 = tk.Frame()
@@ -176,10 +188,17 @@ class GUI2:
         # self.label.pack(fill="y")
 
         self.window.mainloop()
-    def asdsd(self):
+    def ad(self):
         while not self.flag:
             t = threading.Thread(target=TimeDude.time_update(self))
             t.start()
+
+    def asdsd(self):
+        if self.running:
+            self.running = False
+        else:
+            self.running = True
+        TimeDude.time_update(self)
 
     def add_new_track(self):
 
