@@ -16,13 +16,13 @@ class TimeDude:
         def count():
             if gui.running:
                 if gui.counter == -1:
-                    display = f"Текущее время трека:\n 0:0"
+                    display = f"\n0:0"
                 else:
                     tmp = divmod(gui.counter,60)
-                    display = f"Текущее время трека:\n {tmp[0]}:{tmp[1]}"
+                    display = f"\n{tmp[0]}:{tmp[1]}"
 
                 gui.label3['text'] = display
-
+                gui.song_bar.set(gui.counter)
                 gui.label3.after(1000, count)
                 gui.counter += 1
 
@@ -97,7 +97,7 @@ class GUI2:
         self.window.geometry("1280x720")
         self.scale_var = tk.DoubleVar()
         self.scale_var = self.lvl
-
+        self.curr_song_name = ""
         self.menu = tk.Menu(self.window)
         self.window.config(menu=self.menu)
 
@@ -127,7 +127,7 @@ class GUI2:
 
 
 
-        self.prev1_button = tk.Button(self.buttons_collumn_frame, text="<<", command=self.state_tst, height=2, width=4)
+        self.prev1_button = tk.Button(self.buttons_collumn_frame, text="lst_tst", command=self.play_selected_track, height=2, width=4)
         self.prev1_button.pack(padx=2, pady=2, ipady=5, ipadx=5, expand=True)
 
         self.prev2_button = tk.Button(self.buttons_collumn_frame, text="<<", command=self.state_tst, height=2, width=4)
@@ -145,8 +145,14 @@ class GUI2:
         self.frame2 = tk.Frame()
         self.frame2.pack(fill="x", ipadx=100)
 
-        self.label3 = tk.Label(self.frame2, text="current time of song/soundbar\n0:0", bg="white")
-        self.label3.pack(fill="x", ipadx=20, ipady=10, expand=1)
+        self.song_bar = tk.Scale(self.frame2, from_=0, to=100, sliderlength=25, showvalue=1, length=1000,
+                                 orient="horizontal", tickinterval=0.1, command=self.time_work_test)
+        self.song_bar.pack(side = "left",padx=10,expand=True,fill ="x")#expand=True, fill="x")
+
+        self.label3 = tk.Label(self.frame2,font=((100)), text="\n0:0")
+        self.label3.pack( ipadx=5, ipady=3, expand=1,side ="right") #fill="x",
+
+
 
         self.frame3 = tk.Frame()
         self.frame3.pack(padx=10, expand=True, fill="both", side="left")
@@ -160,16 +166,18 @@ class GUI2:
         self.next_button = tk.Button(self.frame3, text=">>",command = self.set_volume_up)
         self.next_button.pack(padx=0, pady=10, ipady=5, ipadx=5, side="left")
 
-        self.song_name = tk.Label(self.frame3, text="song name", bg="green")
-        self.song_name.pack(padx=20, pady=10, ipady=10, ipadx=420, side="left")
+        self.song_name = tk.Label(self.frame3, text="song name", bg="green",anchor = "w")
+        self.song_name.pack(padx=20, pady=10, ipady=10, ipadx=420, side="left" )
+        self.song_name.pack_propagate(False)
+
 
         self.frame4 = tk.Frame()
         self.frame4.pack(expand=True, fill="both", side="left")
 
-        self.label4 = tk.Scale(self.frame4, from_=0, to = 100, sliderlength = 25,showvalue = 1,length = 1000,orient = "horizontal",variable = self.scale_var,tickinterval = 0.1)#command = pass)
+        self.label4 = tk.Scale(self.frame4, from_=0, to = 100, sliderlength = 25,showvalue = 1,length = 1000,orient = "horizontal",tickinterval = 0.1,variable = self.scale_var)#command = pass)
         self.label4.pack(padx=10, pady=5, ipadx=50, ipady=20)
-
-        self.label4.set(self.lvl*100)
+        #self.label4.set(self.lvl*100)
+        self.label4.set(0*100)
         # self.top_frame = tk.Frame(self.window)
         # self.top_frame.pack(side="left")
         #pg.mixer.set_voulume(self.scale_var*0.01)
@@ -220,25 +228,46 @@ class GUI2:
         except:
             return False
 
-    def play_pause(self):
-        if self.box.size() == 0:
-            pass
-        else:
-            if self.startQ:
-                self.start_song()
-            else:
-                pg.mixer.music.play()
-                self.startQ = not self.startQ
 
-            self.change_pause_play_icon()
-            self.pause_status = not self.pause_status
+
+
+
+    def play_pause(self):
+        self.change_pause_play_icon()
+
+        # if self.box.size() == 0:
+        #     pass
+        # else:
+        #     if self.startQ:
+        #         self.start_song()
+        #     else:
+        #         pg.mixer.music.play()
+        #         self.startQ = not self.startQ
+        #     self.pause_status = not self.pause_status
+
+    def time_work_test(self,arg):
+        a = self.song_bar.get()
+        b = self.counter
+        if a != b:
+            self.counter = a
 
 
     def change_pause_play_icon(self):
         if self.pause_status:
             self.pause_play_button.config(text="ы")
+            self.pause_status = False
         else:
             self.pause_play_button.config(text="||")
+            self.pause_status = True
+
+    def play_selected_track(self):
+        if self.box.size() ==0:
+            pass
+        else:
+            id = self.box.curselection()
+            self.song_name.config(text=self.box.get(id))
+
+            #self.to_add = pg.mixer.music.load(self.box.get(self.box.curselection()))
 
     def start_song(self):
 
