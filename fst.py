@@ -88,6 +88,7 @@ class GUI2:
         self.lvl = 0.5
         self.prev_status = True
         self.pause_status = True
+        self.not_started = True
         self.container = {}
         self.time = 0
         #self.x.time_update(self)
@@ -160,7 +161,7 @@ class GUI2:
         self.prev_button = tk.Button(self.frame3, text="<<", command = self.set_volume_down)#command=self.state_tst)
         self.prev_button.pack(padx=0, pady=10, ipady=5, ipadx=5, side="left")
 
-        self.pause_play_button = tk.Button(self.frame3, text="||", command=self.play_pause, height=2, width=2)
+        self.pause_play_button = tk.Button(self.frame3, text="||", command=self.play_pause_beta, height=2, width=2)
         self.pause_play_button.pack(padx=10, pady=10, ipady=10, ipadx=10, side="left")
 
         self.next_button = tk.Button(self.frame3, text=">>",command = self.set_volume_up)
@@ -230,7 +231,23 @@ class GUI2:
 
 
 
-
+    def play_pause_beta(self):
+        if self.not_started:
+            try:
+                pg.mixer.music.play()
+                self.not_started=False
+                self.running=True
+            except:
+                pass
+        else:
+            if not self.pause_status:
+                pg.mixer.music.pause()
+                self.running=False
+            else:
+                pg.mixer.music.unpause()
+                self.running=True
+        self.change_pause_play_icon()
+        TimeDude.time_update(self)
 
     def play_pause(self):
         self.change_pause_play_icon()
