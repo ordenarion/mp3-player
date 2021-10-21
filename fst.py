@@ -83,6 +83,8 @@ class GUI2:
     def __init__(self):
         pg.init()
         #self.x = TimeDude()
+        self.track_list = []
+        self.track_number = 0
         self.flag = False
         self.counter =-1
         self.lvl = 0.5
@@ -213,7 +215,8 @@ class GUI2:
 
         if self.add_track():
             a= "\\"
-            self.box.insert("end",self.music_file.split(a)[-1])
+            self.box.insert("end",str(self.track_number)+self.music_file.split(a)[-1])
+            self.track_number = self.track_number + 1
         else:
             messagebox.showerror("Ошибка","Неверный формат файла")
 
@@ -284,6 +287,15 @@ class GUI2:
             id = self.box.curselection()
             self.song_name.config(text=self.box.get(id))
 
+            pg.mixer.music.stop()
+            pg.mixer.music.load(self.track_list[int(self.box.get(id)[0])])
+            pg.mixer.music.play()
+            self.not_started = False
+            self.pause_status = True
+            self.change_pause_play_icon()
+            self.counter = 0
+            self.running = True
+            TimeDude.time_update(self)
             #self.to_add = pg.mixer.music.load(self.box.get(self.box.curselection()))
 
     def start_song(self):
