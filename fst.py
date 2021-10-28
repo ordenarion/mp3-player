@@ -224,7 +224,7 @@ class GUI2:
     def add_track(self):
         # открывает проводник, чтобы пользователь смог выбрать музыкальный файл
         self.music_file = eg.fileopenbox()
-
+        self.track_list.append(self.music_file)
         # если файл нужного формата, то он загружается в проигрыватель и возвращается путь файла
         try:
             self.to_add = pg.mixer.music.load(self.music_file)
