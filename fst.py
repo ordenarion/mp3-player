@@ -293,6 +293,8 @@ class GUI2:
             pg.mixer.music.stop()
             pg.mixer.music.load(self.track_list[int(self.box.get(id)[0])])
             pg.mixer.music.play()
+            self.track_len = round(pg.mixer.Sound(self.track_list[int(self.box.get(id)[0])]).get_length())
+            self.song_bar.config(to=self.track_len)
             self.not_started = False
             self.pause_status = True
             self.change_pause_play_icon()
