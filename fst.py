@@ -85,6 +85,7 @@ class GUI2:
         #self.x = TimeDude()
         self.track_list = []
         self.track_number = 0
+        self.track_len = 0
         self.flag = False
         self.counter =-1
         self.lvl = 0.5
@@ -240,6 +241,8 @@ class GUI2:
                 pg.mixer.music.play()
                 self.not_started=False
                 self.running=True
+                self.track_len = round(pg.mixer.Sound(self.music_file).get_length())
+                self.song_bar.config(to = self.track_len)
             except:
                 pass
         else:
