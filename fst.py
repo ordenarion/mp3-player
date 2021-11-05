@@ -175,6 +175,12 @@ class GUI2:
         self.song_name.pack_propagate(False)
 
 
+        #self.queue_add_button = tk.Button()
+        #self.queue_delete_button = tk.Button()
+        #self.queue_mix_button = tk.Button()
+        #self.queue_repeat_button = tk.Button()
+
+
         self.frame4 = tk.Frame()
         self.frame4.pack(expand=True, fill="both", side="left")
 
@@ -291,7 +297,8 @@ class GUI2:
             self.song_name.config(text=self.box.get(id))
 
             pg.mixer.music.stop()
-            pg.mixer.music.load(self.track_list[int(self.box.get(id)[0])])
+            tmp = self.track_list[int(self.box.get(id)[0])]
+            pg.mixer.music.load(tmp)
             pg.mixer.music.play()
             self.track_len = round(pg.mixer.Sound(self.track_list[int(self.box.get(id)[0])]).get_length())
             self.song_bar.config(to=self.track_len)
@@ -300,6 +307,7 @@ class GUI2:
             self.change_pause_play_icon()
             self.counter = 0
             self.running = True
+            self.track_len = round(pg.mixer.Sound(tmp).get_length())
             TimeDude.time_update(self)
             #self.to_add = pg.mixer.music.load(self.box.get(self.box.curselection()))
 
