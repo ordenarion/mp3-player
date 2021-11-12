@@ -21,10 +21,11 @@ class TimeDude:
                     tmp = divmod(gui.counter,60)
                     display = f"\n{tmp[0]}:{tmp[1]}"
 
+                gui.counter += 1
                 gui.label3['text'] = display
                 gui.song_bar.set(gui.counter)
                 gui.label3.after(1000, count)
-                gui.counter += 1
+
 
         count()
     @staticmethod
@@ -279,7 +280,8 @@ class GUI2:
         b = self.counter
         if a != b:
             self.counter = a
-
+        if abs(pg.mixer.music.get_pos() - a * 1000) > 1000:
+            pg.mixer.music.set_pos(a)
 
     def change_pause_play_icon(self):
         if self.pause_status:
