@@ -162,13 +162,13 @@ class GUI2:
         self.frame3 = tk.Frame()
         self.frame3.pack(padx=10, expand=True, fill="both", side="left")
 
-        self.prev_button = tk.Button(self.frame3, text="<<", command = self.set_volume_down)#command=self.state_tst)
+        self.prev_button = tk.Button(self.frame3, text="<<", command = self.play_prev_song)#command=self.state_tst)
         self.prev_button.pack(padx=0, pady=10, ipady=5, ipadx=5, side="left")
 
         self.pause_play_button = tk.Button(self.frame3, text="||", command=self.play_pause_beta, height=2, width=2)
         self.pause_play_button.pack(padx=10, pady=10, ipady=10, ipadx=10, side="left")
 
-        self.next_button = tk.Button(self.frame3, text=">>",command = self.set_volume_up)
+        self.next_button = tk.Button(self.frame3, text=">>",command = self.play_next_song)
         self.next_button.pack(padx=0, pady=10, ipady=5, ipadx=5, side="left")
 
         self.song_name = tk.Label(self.frame3, text="song name", bg="green",anchor = "w")
@@ -295,9 +295,16 @@ class GUI2:
         if self.box.size() ==0:
             pass
         else:
-            id = self.box.curselection()
-            self.song_name.config(text=self.box.get(id))
+            if self.nextQ:
+                id = (self.box.curselection()[0] +1) % self.box.size()
+                self.nextQ = False
+            elif self.prevQ:
+                id = (self.box.curselection()[0] - 1) % self.box.size()
+                self.prevQ = False
+            else:
+                id = self.box.curselection()
 
+            self.song_name.config(text=self.box.get(id))
             pg.mixer.music.stop()
             tmp = self.track_list[int(self.box.get(id)[0])]
             pg.mixer.music.load(tmp)
@@ -312,6 +319,13 @@ class GUI2:
             self.track_len = round(pg.mixer.Sound(tmp).get_length())
             TimeDude.time_update(self)
             #self.to_add = pg.mixer.music.load(self.box.get(self.box.curselection()))
+    def play_next_song(self):
+        self.nextQ = True
+        self.play_selected_track()
+
+    def play_prev_song(self):
+        self.prevQ = True
+        self.play_selected_track()
 
     def start_song(self):
 
