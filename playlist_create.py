@@ -54,7 +54,7 @@ class App(tk.Tk):
         self.frame_a = ListFrame(self, tracks,'Мои треки')
         self.frame_b = ListFrame(self,[],'Плейлист')
         self.count = 0
-        self.pl_tracks=[]
+        self.pl_tracks=''
         self.btn_add = tk.Button(self, text="Add track",
                                    command=self.add_track)
         self.btn_remove = tk.Button(self, text="Remove track",
@@ -85,8 +85,16 @@ class App(tk.Tk):
                 "Добавьте треки")
         else:
             for i in range(self.count):
-                self.pl_tracks.append(int(self.frame_b.list.get(i)[0]))
-            messagebox.showinfo('Сохранение','Плейлист под названием:'+self.frame_b.entry.get()+' c стреками:'+str(self.pl_tracks)+' сохранен')
+                self.pl_tracks=self.pl_tracks+self.frame_b.list.get(i)[0]+'_'
+            with sqlite3.connect('playlists.db') as conn:
+                cursor = conn.cursor()
+                query = """INSERT INTO playlists
+                               (name, tracks)
+                               VALUES (?, ?);
+                               """
+                cursor.execute(query, (self.frame_b.entry.get(), self.pl_tracks))
+            cursor.close()
+            messagebox.showinfo('Сохранение','Плейлист сохранен')
             self.destroy()
 
 
