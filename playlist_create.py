@@ -1,109 +1,107 @@
 import tkinter as tk
-from tkinter import messagebox
 import sqlite3
+from tkinter import messagebox
 
-class ListFrame(tk.Frame):
-    def __init__(self, master, items=[],heading=''):
-        super().__init__(master)
-        self.text=tk.Label(self,text=heading)
-        self.text.pack()
-        if heading=='Плейлист':
-            self.name=tk.Label(self,text='Название плейлиста')
-            self.name.pack()
-            self.entry=tk.Entry(self)
-            self.entry.pack()
-            self.curr_tracks=tk.Label(self,text='Треки плейлиста')
-            self.curr_tracks.pack()
-        self.list = tk.Listbox(self)
-        self.scroll = tk.Scrollbar(self, orient=tk.VERTICAL,
-                                   command=self.list.yview)
-        self.list.config(yscrollcommand=self.scroll.set)
-        self.list.insert(0, *items)
-        self.list.pack(side=tk.LEFT)
-        self.scroll.pack(side=tk.LEFT, fill=tk.Y)
+class Playlist():
+    def __init__(self, window, update_list):
+        self.update_list=update_list
+        self.win=window
+        self.left_frame=tk.Frame(window)
+        self.left_frame.pack(side=tk.LEFT)
+        self.middle_frame=tk.Frame(window)
+        self.middle_frame.pack(side=tk.LEFT)
+        self.right_frame=tk.Frame(window)
+        self.right_frame.pack(side=tk.LEFT)
 
-    def pop_selection(self):
-        index = self.list.curselection()
-        if index:
-            value = self.list.get(index)
-            self.list.delete(index)
-            return value
+        self.label_my_tracks=tk.Label(self.left_frame, width=40, text = 'Мои треки')
+        self.label_my_tracks.pack()
 
-    def insert_item(self, item):
-        self.list.insert(tk.END, item)
+        self.my_tracks_list=tk.Listbox(self.left_frame, width=40, height=30, selectmode=tk.EXTENDED)
+        self.my_tracks_list.pack(side=tk.LEFT)
+        self.left_scroll=tk.Scrollbar(self.left_frame, command=self.my_tracks_list.yview)
+        self.left_scroll.pack(side=tk.LEFT)
+        self.my_tracks_list.config(yscrollcommand=self.left_scroll.set)
 
-class App(tk.Tk):
-    def __init__(self):
-        super().__init__()
+        self.label_my_tracks = tk.Label(self.right_frame, width=40, text='Новый плейлист')
+        self.label_my_tracks.pack()
 
-        tracks = []
+        self.entry=tk.Entry(self.right_frame, width=40)
+        self.entry.pack(pady=10)
+
+        self.new_playlist = tk.Listbox(self.right_frame, width=40, height=30, selectmode=tk.EXTENDED)
+        self.new_playlist.pack(side=tk.LEFT)
+        self.right_scroll = tk.Scrollbar(self.right_frame, command=self.new_playlist.yview)
+        self.right_scroll.pack(side=tk.LEFT)
+        self.new_playlist.config(yscrollcommand=self.right_scroll.set)
+
+        self.add_btn=tk.Button(self.middle_frame, text='add track', command=self.add, width=10, height=3)
+        self.add_btn.pack(pady=20, padx=10)
+
+        self.remove_btn = tk.Button(self.middle_frame, text='remove track', command=self.remove, width=10, height=3)
+        self.remove_btn.pack(pady=20, padx=10)
+
+        self.save_btn = tk.Button(self.middle_frame, text='save playlist', command=self.save, width=10, height=3)
+        self.save_btn.pack(pady=20, padx=10)
+
+
+
+
+        self.pl_tracks = ''
+
+        tracks=[]
 
         db_file = 'tracks.db'
         with sqlite3.connect(db_file) as conn:
             cursor = conn.cursor()
 
             cursor.execute("""
-          select id, singer, name from tracks
-          """)
+                  select id, singer, name from tracks
+                  """)
             rows = cursor.fetchall()
             for row in rows:
                 id, singer, name = row
-                tracks.append(str(id)+' '+singer+'-'+name)
+                tracks.append(str(id) + ' ' + singer + '-' + name)
         cursor.close()
         conn.close()
-        self.frame_a = ListFrame(self, tracks,'Мои треки')
-        self.frame_b = ListFrame(self,[],'Плейлист')
-        self.count = 0
-        self.pl_tracks=''
-        self.btn_add = tk.Button(self, text="Add track",
-                                   command=self.add_track)
-        self.btn_remove = tk.Button(self, text="Remove track",
-                                  command=self.remove_track)
-        self.btn_save = tk.Button(self, text="Save playlist", command=self.save)
-
-        self.frame_a.pack(side=tk.LEFT, padx=10, pady=10)
-        self.frame_b.pack(side=tk.RIGHT, padx=10, pady=10)
-        self.btn_add.pack(expand=True, ipadx=5)
-        self.btn_remove.pack(expand=True, ipadx=5)
-        self.btn_save.pack(expand=True, ipadx=5)
+        for i in tracks:
+            self.my_tracks_list.insert(tk.END, i)
 
 
-    def add_track(self):
-        self.move(self.frame_a, self.frame_b)
-        self.count+=1
-    def remove_track(self):
-        self.move(self.frame_b, self.frame_a)
-        self.count-=1
+    def add(self):
+        items=list(self.my_tracks_list.curselection())
+        items.reverse()
+        for i in items:
+            self.new_playlist.insert(tk.END, self.my_tracks_list.get(i))
+            self.my_tracks_list.delete(i)
+
+    def remove(self):
+        items = list(self.new_playlist.curselection())
+        items.reverse()
+        for i in items:
+            self.my_tracks_list.insert(tk.END, self.new_playlist.get(i))
+            self.new_playlist.delete(i)
+
     def save(self):
-        if self.frame_b.entry.get()=='':
+        if self.entry.get()=='':
             messagebox.showerror(
             "Ошибка",
             "Введите название плейлиста")
-        elif self.count==0:
+        elif self.new_playlist.size()==0:
             messagebox.showerror(
                 "Ошибка",
                 "Добавьте треки")
         else:
-            for i in range(self.count):
-                self.pl_tracks=self.pl_tracks+self.frame_b.list.get(i)[0]+'_'
+            for i in range(self.new_playlist.size()):
+                self.pl_tracks=self.pl_tracks+'_'+self.new_playlist.get(i)[0]
             with sqlite3.connect('playlists.db') as conn:
                 cursor = conn.cursor()
                 query = """INSERT INTO playlists
-                               (name, tracks)
-                               VALUES (?, ?);
-                               """
-                cursor.execute(query, (self.frame_b.entry.get(), self.pl_tracks))
+                    (name, tracks)
+                    VALUES (?, ?);
+                    """
+                cursor.execute(query, (self.entry.get(),  self.pl_tracks))
+                self.update_list.insert(tk.END, self.entry.get())
             cursor.close()
+            conn.close()
             messagebox.showinfo('Сохранение','Плейлист сохранен')
-            self.destroy()
-
-
-
-    def move(self, frame_from, frame_to):
-        value = frame_from.pop_selection()
-        if value:
-            frame_to.insert_item(value)
-
-if __name__ == "__main__":
-    app = App()
-    app.mainloop()
+            self.win.destroy()
