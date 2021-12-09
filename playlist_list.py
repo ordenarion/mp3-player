@@ -1,5 +1,5 @@
 import tkinter as tk
-
+from tkinter import messagebox
 import sqlite3
 
 from new_pl_create import Playlist
@@ -78,12 +78,29 @@ class Pl_Block:
             new_window.mainloop()
 
     def pl_edit(self):
-        pass
+        new_window=tk.Tk()
+        pl_name = self.pl_list.get(list(self.pl_list.curselection())[0])
+        block=Playlist(new_window, self.pl_list, pl_name, list(self.pl_list.curselection())[0])
+        new_window.mainloop()
+
     def pl_dell(self):
-        pass
+        i=list(self.pl_list.curselection())[0]
+        name=self.pl_list.get(i)
+        answer = messagebox.askyesno("Удаление", "Вы действительно хотите удалить плейлист "+name+"?")
+        if answer:
+            with sqlite3.connect("playlists.db") as conn:
+                cursor=conn.cursor()
+                cursor.execute("""
+                DELETE FROM playlists
+                WHERE name = ?
+                """,(name,))
+            cursor.close()
+            conn.close()
+            self.pl_list.delete(i)
+
     def pl_create(self):
         new_window=tk.Tk()
-        block=Playlist(new_window, self.pl_list)
+        block=Playlist(new_window, self.pl_list,'',-1)
         new_window.mainloop()
 
 window=tk.Tk()

@@ -3,7 +3,9 @@ import sqlite3
 from tkinter import messagebox
 
 class Playlist():
-    def __init__(self, window, update_list):
+    def __init__(self, window, update_list, current_playlist, place):
+        self.place=place
+        self.current_playlist=current_playlist
         self.update_list=update_list
         self.win=window
         self.left_frame=tk.Frame(window)
@@ -26,7 +28,10 @@ class Playlist():
         self.label_my_tracks.pack()
 
         self.entry=tk.Entry(self.right_frame, width=40)
+        self.entry.insert(0, current_playlist)
         self.entry.pack(pady=10)
+
+
 
         self.new_playlist = tk.Listbox(self.right_frame, width=40, height=30, selectmode=tk.EXTENDED)
         self.new_playlist.pack(side=tk.LEFT)
@@ -43,29 +48,87 @@ class Playlist():
         self.save_btn = tk.Button(self.middle_frame, text='save playlist', command=self.save, width=10, height=3)
         self.save_btn.pack(pady=20, padx=10)
 
+        with sqlite3.connect("playlists.db") as conn:
+            cursor=conn.cursor()
+            cursor.execute("""
+            SELECT name FROM playlists
+            """)
+            self.names=cursor.fetchall()
+
+            if current_playlist!='':
+                self.names.remove((current_playlist,))
+
+                cursor.execute("""
+                        SELECT id, tracks FROM playlists
+                        WHERE name= ?
+                        """, (current_playlist,))
+                self.id, self.tracks = cursor.fetchall()[0]
+        cursor.close()
+
+        conn.close()
+
 
 
 
         self.pl_tracks = ''
 
-        tracks=[]
 
         db_file = 'tracks.db'
+
         with sqlite3.connect(db_file) as conn:
             cursor = conn.cursor()
 
-            cursor.execute("""
-                  select id, singer, name from tracks
+            if current_playlist == '':
+                cursor.execute("""
+                    select id, singer, name from tracks
                   """)
-            rows = cursor.fetchall()
-            for row in rows:
-                id, singer, name = row
-                tracks.append(str(id) + ' ' + singer + '-' + name)
+                rows = cursor.fetchall()
+                for row in rows:
+                    id, singer, name = row
+                    self.my_tracks_list.insert(tk.END, str(id) + ' ' + singer + '-' + name)
+
+
+            else:
+                tracks=self.tracks.split('_')
+                tracks.remove('')
+                for track in tracks:
+
+                    cursor.execute(
+                            """
+                            select singer, name from  tracks
+                            where id = ?
+                            """, (int(track),)
+                    )
+                    selected=cursor.fetchall()[0]
+                    self.new_playlist.insert(tk.END, track + ' ' + selected[0] + '-' + selected[1])
+
+                song_id=1
+                while True:
+
+                    cursor.execute(
+                            """
+                            select singer, name from  tracks
+                            where id = ?
+                            """, (song_id,)
+                        )
+                    rows = cursor.fetchall()
+                    if len(rows)==0:
+                        break
+                    for row in rows:
+                        singer, name = row
+                        if not(str(song_id) in tracks):
+                            self.my_tracks_list.insert(tk.END, str(song_id) + ' ' + singer + '-' + name)
+                    song_id=song_id+1
+
+
+
+
+
+
         cursor.close()
         conn.close()
-        for i in tracks:
-            self.my_tracks_list.insert(tk.END, i)
 
+        self.win.protocol("WM_DELETE_WINDOW", self.on_closing)
 
     def add(self):
         items=list(self.my_tracks_list.curselection())
@@ -86,6 +149,11 @@ class Playlist():
             messagebox.showerror(
             "Ошибка",
             "Введите название плейлиста")
+        elif (self.entry.get(),) in self.names:
+            messagebox.showerror(
+                "Ошибка",
+                "Плейлист с таким именем уже существует. Измените имя.")
+
         elif self.new_playlist.size()==0:
             messagebox.showerror(
                 "Ошибка",
@@ -95,13 +163,34 @@ class Playlist():
                 self.pl_tracks=self.pl_tracks+'_'+self.new_playlist.get(i)[0]
             with sqlite3.connect('playlists.db') as conn:
                 cursor = conn.cursor()
-                query = """INSERT INTO playlists
+
+                if self.current_playlist=='':
+                    query = """INSERT INTO playlists
                     (name, tracks)
                     VALUES (?, ?);
                     """
-                cursor.execute(query, (self.entry.get(),  self.pl_tracks))
-                self.update_list.insert(tk.END, self.entry.get())
+                    cursor.execute(query, (self.entry.get(), self.pl_tracks))
+                    self.update_list.insert(tk.END, self.entry.get())
+                else:
+                    query = """UPDATE playlists SET name = ?
+                                WHERE id = ?       
+                                        """
+                    cursor.execute(query, (self.entry.get(), self.id))
+                    query="""UPDATE playlists SET tracks = ?
+                                WHERE id = ?       
+                                        """
+                    cursor.execute(query, (self.pl_tracks, self.id))
+                    if self.entry.get!=self.current_playlist:
+                        self.update_list.delete(self.place)
+                        self.update_list.insert(self.place, self.entry.get())
             cursor.close()
             conn.close()
             messagebox.showinfo('Сохранение','Плейлист сохранен')
+            self.win.destroy()
+
+    def on_closing(self):
+        answer = messagebox.askyesno("Закрытие", "Сохранить плейлист?")
+        if answer:
+            self.save()
+        else:
             self.win.destroy()
