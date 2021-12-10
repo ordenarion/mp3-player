@@ -39,6 +39,12 @@ class Playlist():
         self.right_scroll.pack(side=tk.LEFT)
         self.new_playlist.config(yscrollcommand=self.right_scroll.set)
 
+        self.up_btn = tk.Button(self.middle_frame, text='up', command=self.up, width=10, heigh=3)
+        self.up_btn.pack(pady=20, padx=10)
+
+        self.down_btn = tk.Button(self.middle_frame, text='down', command=self.down, width=10, heigh=3)
+        self.down_btn.pack(pady=20, padx=10)
+
         self.add_btn=tk.Button(self.middle_frame, text='add track', command=self.add, width=10, height=3)
         self.add_btn.pack(pady=20, padx=10)
 
@@ -129,6 +135,29 @@ class Playlist():
         conn.close()
 
         self.win.protocol("WM_DELETE_WINDOW", self.on_closing)
+    def up(self):
+        curr_tracks=list(self.new_playlist.curselection())
+        if len(curr_tracks)==1:
+            track=curr_tracks[0]
+            if track!=0:
+                x=self.new_playlist.get(track)
+                y=self.new_playlist.get(track-1)
+                self.new_playlist.delete(track-1)
+                self.new_playlist.insert(track-1, x)
+                self.new_playlist.delete(track)
+                self.new_playlist.insert(track, y)
+
+    def down(self):
+        curr_tracks = list(self.new_playlist.curselection())
+        if len(curr_tracks) == 1:
+            track = curr_tracks[0]
+            if track != self.new_playlist.size()-1:
+                x = self.new_playlist.get(track)
+                y = self.new_playlist.get(track + 1)
+                self.new_playlist.delete(track + 1)
+                self.new_playlist.insert(track + 1, x)
+                self.new_playlist.delete(track)
+                self.new_playlist.insert(track, y)
 
     def add(self):
         items=list(self.my_tracks_list.curselection())
