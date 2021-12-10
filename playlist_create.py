@@ -45,7 +45,7 @@ class Playlist():
         self.remove_btn = tk.Button(self.middle_frame, text='remove track', command=self.remove, width=10, height=3)
         self.remove_btn.pack(pady=20, padx=10)
 
-        self.save_btn = tk.Button(self.middle_frame, text='save playlist', command=self.save, width=10, height=3)
+        self.save_btn = tk.Button(self.middle_frame, text='save playlist', command=self.save_confirm, width=10, height=3)
         self.save_btn.pack(pady=20, padx=10)
 
         with sqlite3.connect("playlists.db") as conn:
@@ -187,6 +187,11 @@ class Playlist():
             conn.close()
             messagebox.showinfo('Сохранение','Плейлист сохранен')
             self.win.destroy()
+
+    def save_confirm(self):
+        answer = messagebox.askyesno("Закрытие", "Сохранить плейлист?")
+        if answer:
+            self.save()
 
     def on_closing(self):
         answer = messagebox.askyesno("Закрытие", "Сохранить плейлист?")
