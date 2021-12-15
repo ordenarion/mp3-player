@@ -18,9 +18,14 @@ class TimeDude:
                 if gui.counter == -1:
                     display = f"\n0:0"
                 else:
-                    tmp = divmod(gui.counter,60)
+                    tmp = divmod(gui.counter+1,60)
                     display = f"\n{tmp[0]}:{tmp[1]}"
 
+                if gui.counter == gui.track_len:
+                    gui.running=False
+                    gui.song_bar.set(0)
+                    gui.counter = -1
+                    display = f"\n0:0"
 
                 gui.counter += 1
                 gui.label3['text'] = display
