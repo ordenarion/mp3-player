@@ -21,6 +21,7 @@ class TimeDude:
                     tmp = divmod(gui.counter,60)
                     display = f"\n{tmp[0]}:{tmp[1]}"
 
+
                 gui.counter += 1
                 gui.label3['text'] = display
                 gui.song_bar.set(gui.counter)
@@ -185,10 +186,10 @@ class GUI2:
         self.frame4 = tk.Frame()
         self.frame4.pack(expand=True, fill="both", side="left")
 
-        self.label4 = tk.Scale(self.frame4, from_=0, to = 100, sliderlength = 25,showvalue = 1,length = 1000,orient = "horizontal",tickinterval = 0.1,variable = self.scale_var)#command = pass)
-        self.label4.pack(padx=10, pady=5, ipadx=50, ipady=20)
+        self.volume_bar = tk.Scale(self.frame4, from_=0, to = 100, sliderlength = 25,showvalue = 1,length = 1000,orient = "horizontal",tickinterval = 0.1,variable = self.scale_var,command=self.change_volume)#command = pass)
+        self.volume_bar.pack(padx=10, pady=5, ipadx=50, ipady=20)
         #self.label4.set(self.lvl*100)
-        self.label4.set(0*100)
+        self.volume_bar.set(self.lvl*100)
         # self.top_frame = tk.Frame(self.window)
         # self.top_frame.pack(side="left")
         #pg.mixer.set_voulume(self.scale_var*0.01)
@@ -349,7 +350,7 @@ class GUI2:
         else:
             pg.mixer.music.set_volume(self.lvl-0.1)
             self.lvl -= 0.1
-            self.label4.set(self.lvl*100)
+            self.volume_bar.set(self.lvl*100)
 
     def set_volume_up(self):
         if self.lvl == 1.0:
@@ -357,9 +358,12 @@ class GUI2:
         else:
             pg.mixer.music.set_volume(self.lvl + 0.1)
             self.lvl += 0.1
-            self.label4.set(self.lvl*100)
+            self.volume_bar.set(self.lvl*100)
 
     def start_curr_track(self):
         pass
+    def change_volume(self,a):
+        pg.mixer.music.set_volume(int(a)*0.01)
+
 
 f = GUI2()
