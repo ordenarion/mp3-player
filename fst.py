@@ -6,6 +6,7 @@ import pygame as pg
 import easygui as eg
 import time as tm
 import threading
+import sqlite3
 
 class TimeDude:
     def __init__(self,tie = 0):
@@ -230,6 +231,19 @@ class GUI2:
         if self.add_track():
             a= "\\"
             self.box.insert("end",str(self.track_number)+self.music_file.split(a)[-1])
+            with sqlite3.connect("tracks.db") as conn:
+                cursor=conn.cursor()
+                sn=self.music_file.split(a)[-1]
+                sn = sn.split('-')
+                singer=sn[0]
+                name=sn[1]
+                cursor.execute("""
+                INSERT INTO tracks
+                (singer, name, path)
+                VALUES (?, ?, ?);
+                """, (singer, name, self.music_file))
+            cursor.close()
+            conn.close()
             self.track_number = self.track_number + 1
         else:
             messagebox.showerror("Ошибка","Неверный формат файла")
@@ -286,7 +300,6 @@ class GUI2:
         b = self.counter
         if a != b:
             self.counter = a
-        if abs(pg.mixer.music.get_pos() - a * 1000) > 1000:
             pg.mixer.music.set_pos(a)
 
     def change_pause_play_icon(self):
