@@ -12,6 +12,8 @@ class Playlist():
         self.left_frame.pack(side=tk.LEFT)
         self.middle_frame=tk.Frame(window)
         self.middle_frame.pack(side=tk.LEFT)
+        self.middle_frame2 = tk.Frame(window)
+        self.middle_frame2.pack(side=tk.LEFT)
         self.right_frame=tk.Frame(window)
         self.right_frame.pack(side=tk.LEFT)
 
@@ -39,11 +41,14 @@ class Playlist():
         self.right_scroll.pack(side=tk.LEFT)
         self.new_playlist.config(yscrollcommand=self.right_scroll.set)
 
-        self.up_btn = tk.Button(self.middle_frame, text='up', command=self.up, width=10, heigh=3)
+        self.up_btn = tk.Button(self.middle_frame2, text='up', command=self.up, width=10, heigh=3)
         self.up_btn.pack(pady=20, padx=10)
 
-        self.down_btn = tk.Button(self.middle_frame, text='down', command=self.down, width=10, heigh=3)
+        self.down_btn = tk.Button(self.middle_frame2, text='down', command=self.down, width=10, heigh=3)
         self.down_btn.pack(pady=20, padx=10)
+
+        self.random_btn = tk.Button(self.middle_frame2, text='mix', command=self.mix, width=10, heigh=3)
+        self.random_btn.pack(pady=20, padx=10)
 
         self.add_btn=tk.Button(self.middle_frame, text='add track', command=self.add, width=10, height=3)
         self.add_btn.pack(pady=20, padx=10)
@@ -158,6 +163,18 @@ class Playlist():
                 self.new_playlist.insert(track + 1, x)
                 self.new_playlist.delete(track)
                 self.new_playlist.insert(track, y)
+
+    def mix(self):
+        size=self.new_playlist.size()
+        if size>0:
+            for i in range(size-1):
+                randomi=random.randint(i, size-1)
+                tracki=self.new_playlist.get(i)
+                track_randomi=self.new_playlist.get(randomi)
+                self.new_playlist.delete(i)
+                self.new_playlist.insert(i, track_randomi)
+                self.new_playlist.delete(randomi)
+                self.new_playlist.insert(randomi, tracki)
 
     def add(self):
         items=list(self.my_tracks_list.curselection())
