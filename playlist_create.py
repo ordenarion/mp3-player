@@ -20,22 +20,22 @@ class Playlist():
         self.label_my_tracks=tk.Label(self.left_frame, width=40, text = 'Мои треки')
         self.label_my_tracks.pack()
 
-        self.my_tracks_list=tk.Listbox(self.left_frame, width=40, height=30, selectmode=tk.EXTENDED)
+        self.my_tracks_list=tk.Listbox(self.left_frame, width=60, height=30, selectmode=tk.EXTENDED)
         self.my_tracks_list.pack(side=tk.LEFT)
         self.left_scroll=tk.Scrollbar(self.left_frame, command=self.my_tracks_list.yview)
         self.left_scroll.pack(side=tk.LEFT)
         self.my_tracks_list.config(yscrollcommand=self.left_scroll.set)
 
-        self.label_my_tracks = tk.Label(self.right_frame, width=40, text='Новый плейлист')
+        self.label_my_tracks = tk.Label(self.right_frame, width=60, text='Новый плейлист')
         self.label_my_tracks.pack()
 
-        self.entry=tk.Entry(self.right_frame, width=40)
+        self.entry=tk.Entry(self.right_frame, width=60)
         self.entry.insert(0, current_playlist)
         self.entry.pack(pady=10)
 
 
 
-        self.new_playlist = tk.Listbox(self.right_frame, width=40, height=30, selectmode=tk.EXTENDED)
+        self.new_playlist = tk.Listbox(self.right_frame, width=60, height=30, selectmode=tk.EXTENDED)
         self.new_playlist.pack(side=tk.LEFT)
         self.right_scroll = tk.Scrollbar(self.right_frame, command=self.new_playlist.yview)
         self.right_scroll.pack(side=tk.LEFT)
