@@ -50,7 +50,6 @@ class Pl_Block:
             scroll=tk.Scrollbar(new_window, command=tracks.yview())
             scroll.pack(side=tk.LEFT, fill=tk.Y)
             tracks.config(yscrollcommand=scroll.set)
-            print(pl_name)
             with sqlite3.connect('playlists.db') as conn:
                 cursor=conn.cursor()
                 cursor.execute("""
@@ -67,12 +66,12 @@ class Pl_Block:
                     if i!="":
                         cursor.execute(
                             """
-                            select singer, name from  tracks
+                            select name from  tracks
                             where id = ?
                             """, (int(i),)
                         )
                         for j in cursor.fetchall():
-                            tracks.insert(tk.END,str(j[0])+"-"+str(j[1]))
+                            tracks.insert(tk.END, j)
             cursor.close()
             conn.close()
             new_window.mainloop()
@@ -100,7 +99,7 @@ class Pl_Block:
 
     def pl_create(self):
         new_window=tk.Tk()
-        block=Playlist(new_window, self.pl_list,'',-1)
+        block=Playlist(new_window, self.pl_list)
         new_window.mainloop()
 
 window=tk.Tk()

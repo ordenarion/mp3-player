@@ -1,6 +1,6 @@
 import time
 import tkinter as tk
-from functions import add_track,play_pause,plus_volume,minus_volume
+#from functions import add_track,play_pause,plus_volume,minus_volume
 from tkinter import messagebox
 import pygame as pg
 import easygui as eg
@@ -234,16 +234,14 @@ class GUI2:
             with sqlite3.connect("tracks.db") as conn:
                 cursor=conn.cursor()
                 sn=self.music_file.split(a)[-1]
-                sn = sn.split('-')
-                singer=sn[0]
-                name=sn[1]
                 cursor.execute("""
                 INSERT INTO tracks
-                (singer, name, path)
-                VALUES (?, ?, ?);
-                """, (singer, name, self.music_file))
+                (name, path)
+                VALUES (?, ?);
+                """, (sn, self.music_file))
             cursor.close()
             conn.close()
+
             self.track_number = self.track_number + 1
         else:
             messagebox.showerror("Ошибка","Неверный формат файла")
@@ -300,6 +298,7 @@ class GUI2:
         b = self.counter
         if a != b:
             self.counter = a
+        #if abs(pg.mixer.music.get_pos() - a * 1000) > 1000:
             pg.mixer.music.set_pos(a)
 
     def change_pause_play_icon(self):
