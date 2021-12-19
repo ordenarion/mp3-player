@@ -160,8 +160,8 @@ class GUI2:
         self.prev3_button = tk.Button(self.buttons_collumn_frame, text="<<", command=self.state_tst, height=2, width=4)
         self.prev3_button.pack(padx=0, pady=2, ipady=5, ipadx=5, expand=True)
 
-        self.prev4_button = tk.Button(self.buttons_collumn_frame, text="tst", command=self.asdsd, height=2, width=4)
-        self.prev4_button.pack(padx=0, pady=2, ipady=5, ipadx=5, expand=True)
+        self.repeat_button = tk.Button(self.buttons_collumn_frame, text="( )", command=self.repeat_track, height=2, width=4)
+        self.repeat_button.pack(padx=0, pady=2, ipady=5, ipadx=5, expand=True)
 
         self.label2 = tk.Label(self.queue_playlist_frame, text="playlists block", bg="red")
         self.label2.pack(ipady=275, ipadx=400, expand=True, fill="both")
@@ -375,7 +375,13 @@ class GUI2:
     def play_next_song(self):
         self.nextQ = True
         self.play_selected_track()
-
+    def repeat_track(self):
+        if self.repeatQ:
+            self.repeatQ = False
+            self.repeat_button.config(relief = "raised")
+        else:
+            self.repeatQ = True
+            self.repeat_button.config(relief = "sunken")
     def play_prev_song(self):
         self.prevQ = True
         self.play_selected_track()
