@@ -17,6 +17,7 @@ class TimeDude:
 
     @staticmethod
     def time_update(gui):
+        print("работаю")
         def count():
             if gui.running:
                 if gui.counter == -1:
@@ -38,8 +39,8 @@ class TimeDude:
                 gui.counter += 1
                 gui.label3['text'] = display
                 gui.song_bar.set(gui.counter)
-                gui.label3.after(1000, count)
-
+                #gui.label3.after(1000, count)
+            gui.label3.after(1000, count)
 
         count()
     @staticmethod
@@ -111,7 +112,8 @@ class GUI2:
         self.id = 0
         self.prev_status = True
         self.pause_status = True
-        self.not_started = True
+        #self.not_started = True
+        self.not_started = False
         self.container = {}
         self.time = 0
         #self.x.time_update(self)
@@ -266,26 +268,35 @@ class GUI2:
 
     def play_pause_beta(self):
         if self.first_enter:
+            print(f"first_enter {self.first_enter}")
             self.play_selected_track()
             self.first_enter = False
-        if self.not_started:
-            try:
-                pg.mixer.music.play()
-                self.not_started=False
-                self.running=True
-                self.track_len = round(pg.mixer.Sound(self.music_file).get_length())
-                self.song_bar.config(to = self.track_len)
-            except:
-                pass
+            self.not_started = False
+            TimeDude.time_update(self)
+            #self.running = True
+            print(f"not_started {self.not_started}")
+        # if self.not_started:
+        #     try:
+        #         pg.mixer.music.play()
+        #         self.not_started=False
+        #         self.running=True
+        #         self.track_len = round(pg.mixer.Sound(self.music_file).get_length())
+        #         self.song_bar.config(to = self.track_len)
+        #     except:
+        #         pass
+        # else:
+        if not self.pause_status:
+            pg.mixer.music.pause()
+            self.running=False
+            print(f"{self.running} {self.pause_status}")
+            #self.pause_status = True
         else:
-            if not self.pause_status:
-                pg.mixer.music.pause()
-                self.running=False
-            else:
-                pg.mixer.music.unpause()
-                self.running=True
+            pg.mixer.music.unpause()
+            self.running=True
+            #TimeDude.time_update(self)
+            #self.pause_status = False
         self.change_pause_play_icon()
-        TimeDude.time_update(self)
+        #TimeDude.time_update(self)
 
     def play_pause(self):
         self.change_pause_play_icon()
@@ -364,7 +375,7 @@ class GUI2:
             self.pause_status = False
             self.change_pause_play_icon()
             self.counter = 0
-            #self.running = True
+            self.running = True
             self.track_len = round(pg.mixer.Sound(tmp).get_length())
             # if self.first_enter:
             #     TimeDude.time_update(self)
