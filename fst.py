@@ -1,6 +1,9 @@
 import time
 import tkinter as tk
-#from functions import add_track,play_pause,plus_volume,minus_volume
+
+import pygame.mixer
+
+from functions import add_track,play_pause,plus_volume,minus_volume
 from tkinter import messagebox
 import pygame as pg
 import easygui as eg
@@ -97,6 +100,7 @@ class GUI2:
         self.flag = False
         self.counter =-1
         self.lvl = 0.5
+        self.id = 0
         self.prev_status = True
         self.pause_status = True
         self.not_started = True
@@ -231,17 +235,6 @@ class GUI2:
         if self.add_track():
             a= "\\"
             self.box.insert("end",str(self.track_number)+self.music_file.split(a)[-1])
-            with sqlite3.connect("tracks.db") as conn:
-                cursor=conn.cursor()
-                sn=self.music_file.split(a)[-1]
-                cursor.execute("""
-                INSERT INTO tracks
-                (name, path)
-                VALUES (?, ?);
-                """, (sn, self.music_file))
-            cursor.close()
-            conn.close()
-
             self.track_number = self.track_number + 1
         else:
             messagebox.showerror("Ошибка","Неверный формат файла")
@@ -250,13 +243,16 @@ class GUI2:
         # открывает проводник, чтобы пользователь смог выбрать музыкальный файл
         self.music_file = eg.fileopenbox()
         self.track_list.append(self.music_file)
+        return True
         # если файл нужного формата, то он загружается в проигрыватель и возвращается путь файла
-        try:
-            self.to_add = pg.mixer.music.load(self.music_file)
-            return True
-        # если файл неверного формата, то функция возвращает строку с соответствующим сообщением
-        except:
-            return False
+        # try:
+        #     tmp = pg.mixer.music.load(self.music_file)
+        #     tmp = pg.mixer.music.unload(self.music_file)
+        #
+        #     return True
+        # #  если файл неверного формата, то функция возвращает строку с соответствующим сообщением
+        # except:
+        #      return False
 
 
 
@@ -298,7 +294,7 @@ class GUI2:
         b = self.counter
         if a != b:
             self.counter = a
-        #if abs(pg.mixer.music.get_pos() - a * 1000) > 1000:
+        if abs(pg.mixer.music.get_pos() - a * 1000) > 1000:
             pg.mixer.music.set_pos(a)
 
     def change_pause_play_icon(self):
@@ -313,29 +309,37 @@ class GUI2:
         if self.box.size() ==0:
             pass
         else:
+            try:
+                pg.mixer.music.unload(self.track_list[int(self.box.get(self.id)[0])])
+            except:
+                pass
+            print(f"id которое убиваем {self.id}")
+            #self.running = False
             if self.nextQ:
-                id = (self.box.curselection()[0] +1) % self.box.size()
+                self.id += 1
                 self.nextQ = False
+                print("next")
             elif self.prevQ:
-                id = (self.box.curselection()[0] - 1) % self.box.size()
+                self.id -= 1
                 self.prevQ = False
+                print("prev")
             else:
-                id = self.box.curselection()
-
-            self.song_name.config(text=self.box.get(id))
+                self.id = self.box.curselection()
+            print(f"id которое запускается {self.id}")
+            self.song_name.config(text=self.box.get(self.id))
             pg.mixer.music.stop()
-            tmp = self.track_list[int(self.box.get(id)[0])]
+            tmp = self.track_list[int(self.box.get(self.id)[0])]
             pg.mixer.music.load(tmp)
             pg.mixer.music.play()
-            self.track_len = round(pg.mixer.Sound(self.track_list[int(self.box.get(id)[0])]).get_length())
+            self.track_len = round(pg.mixer.Sound(self.track_list[int(self.box.get(self.id)[0])]).get_length())
             self.song_bar.config(to=self.track_len)
             self.not_started = False
             self.pause_status = True
             self.change_pause_play_icon()
             self.counter = 0
-            self.running = True
+            #self.running = True
             self.track_len = round(pg.mixer.Sound(tmp).get_length())
-            TimeDude.time_update(self)
+            #TimeDude.time_update(self)
             #self.to_add = pg.mixer.music.load(self.box.get(self.box.curselection()))
     def play_next_song(self):
         self.nextQ = True
