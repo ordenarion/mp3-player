@@ -5,10 +5,11 @@ import random
 
 # Класс -окно для создания/редактирования плейлистов
 class Playlist():
-    def __init__(self, window, update_list, current_playlist='', place=-1):
+    def __init__(self, window, update_list, status, current_playlist='', place=-1):
         """
         :param window:родительское окно
         :param update_list:список, в который будет вставляться имя созданного/отредактированного плейлиста
+        :param status:через эту переменную можно будет изменять переменную status из класса управления плейлистами Pl_Block
         :param current_playlist:имя редактируемого плейлиста, если класс используется как окно редактирования плейлистов; '',если класс используется как окно для создание плейлиста
         :param place:место, на котором находится имя редактируемого плейлиста, если если класс используется как окно редактирования плейлистов; -1,если класс используется как окно для создание плейлиста
         """
@@ -17,6 +18,7 @@ class Playlist():
         self.place=place
         self.current_playlist=current_playlist
         self.update_list=update_list
+        self.status=status
         self.win=window
 
         #Фреймы класса
@@ -88,7 +90,7 @@ class Playlist():
             self.names=cursor.fetchall()# сохраняем их в поле класса, список имен плейлистов понадобится нам, чтобы не допустить создание нового плейлиста с уже существующим именем
 
             if current_playlist!='':# если это окно редактирования плейлиста
-                self.names.remove((current_playlist,)), # удаляем имя редактируемого плейлиста из списка имен плейлистов
+                self.names.remove((current_playlist,)) # удаляем имя редактируемого плейлиста из списка имен плейлистов
 
                 cursor.execute("""
                         SELECT id, tracks FROM playlists
@@ -143,7 +145,7 @@ class Playlist():
                     if len(rows)==0:# если нет записи с соответствующим индексом, то выходим из цикла
                         break
                     for row in rows:
-                        name = row
+                        name = row[0]
                         if not(str(song_id) in tracks):# если индекс трека не в списке индексов треков плейлиста
                             self.my_tracks_list.insert(tk.END, str(song_id) + name)# добавляем трек+его индекс в список доступных треков
                     song_id=song_id+1# переходим к следующему индексу
@@ -255,6 +257,8 @@ class Playlist():
             cursor.close()
             conn.close()# закрываем базу данных
             messagebox.showinfo('Сохранение','Плейлист сохранен') # выдаем сообщение, что плейлист сохранен
+            self.status.remove(False)
+            self.status.append(True)# меняем значение переменной status на True, чтобы в классе Pl_Block снова можно было пользоваться кнопками для управления плейлистами
             self.win.destroy()# уничтожаем окно
 
     #Функция сохранения с подтверждением действия
@@ -268,4 +272,6 @@ class Playlist():
         if answer:# если ответ положительный, то вызываем функцию сохранения плейлиста
             self.save()
         else:# если ответ отрицательный, просто уничтожаем окно
+            self.status.remove(False)
+            self.status.append(True)# меняем значение переменной status на True, чтобы в классе Pl_Block снова можно было пользоваться кнопками для управления плейлистами
             self.win.destroy()
