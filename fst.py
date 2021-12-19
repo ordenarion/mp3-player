@@ -26,7 +26,11 @@ class TimeDude:
                     display = f"\n{tmp[0]}:{tmp[1]}"
 
                 if gui.counter == gui.track_len:
-                    gui.running=False
+                    #gui.running=False
+                    if not gui.repeatQ:
+                        gui.nextQ = True
+                    gui.play_selected_track()
+                    #gui.running = True
                     gui.song_bar.set(0)
                     gui.counter = -1
                     display = f"\n0:0"
@@ -94,6 +98,10 @@ class GUI2:
     def __init__(self):
         pg.init()
         #self.x = TimeDude()
+        self.repeatQ = False
+        self.first_enter = True
+        self.nextQ = False
+        self.prevQ = False
         self.track_list = []
         self.track_number = 0
         self.track_len = 0
@@ -257,6 +265,9 @@ class GUI2:
 
 
     def play_pause_beta(self):
+        if self.first_enter:
+            self.play_selected_track()
+            self.first_enter = False
         if self.not_started:
             try:
                 pg.mixer.music.play()
@@ -306,6 +317,7 @@ class GUI2:
             self.pause_status = True
 
     def play_selected_track(self):
+
         if self.box.size() ==0:
             pass
         else:
@@ -315,17 +327,30 @@ class GUI2:
                 pass
             print(f"id которое убиваем {self.id}")
             #self.running = False
+
             if self.nextQ:
-                self.id += 1
+                self.box.select_clear(self.id, self.id)
+                self.id = (self.id + 1)%self.box.size()
                 self.nextQ = False
+
                 print("next")
             elif self.prevQ:
-                self.id -= 1
+                self.box.select_clear(self.id, self.id)
+                self.id = (self.id - 1)%self.box.size()
                 self.prevQ = False
+
                 print("prev")
+            elif self.repeatQ:
+                #id остается прежнем
+                pass
             else:
-                self.id = self.box.curselection()
+                try:
+                 self.id = self.box.curselection()[0]
+                except:
+                    self.id = 0
             print(f"id которое запускается {self.id}")
+
+            self.box.selection_set(self.id)
             self.song_name.config(text=self.box.get(self.id))
             pg.mixer.music.stop()
             tmp = self.track_list[int(self.box.get(self.id)[0])]
@@ -333,12 +358,18 @@ class GUI2:
             pg.mixer.music.play()
             self.track_len = round(pg.mixer.Sound(self.track_list[int(self.box.get(self.id)[0])]).get_length())
             self.song_bar.config(to=self.track_len)
-            self.not_started = False
-            self.pause_status = True
+            #self.not_started = False
+            #self.pause_status = True
+            self.not_started = True
+            self.pause_status = False
             self.change_pause_play_icon()
             self.counter = 0
             #self.running = True
             self.track_len = round(pg.mixer.Sound(tmp).get_length())
+            # if self.first_enter:
+            #     TimeDude.time_update(self)
+            #     self.first_enter = False
+
             #TimeDude.time_update(self)
             #self.to_add = pg.mixer.music.load(self.box.get(self.box.curselection()))
     def play_next_song(self):
