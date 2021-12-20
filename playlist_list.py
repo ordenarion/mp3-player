@@ -9,7 +9,6 @@ class Pl_Block:
     def __init__(self, window):
         self.status=[True]#это поле позволит отслеживать, открыты ли какие-то из окн редактирования, создания или просмотра плейлиста, чтобы не дать пользователю открыть другие окна, пока тот не закроет эти
         self.win=window
-        self.win.protocol("WM_DELETE_WINDOW", self.on_closing)#Изменяем функцию при закрытии родительского окна, чтобы оно запросило подтверждение при закрытии и закрылось только в том случае, если нет открытых окон
 
         #Фреймы класса
         self.left_frame=tk.Frame(window)#Левый фрейм
@@ -19,10 +18,10 @@ class Pl_Block:
         self.right_frame.pack(side=tk.RIGHT)
 
         #Виджеты левого фрейма
-        self.label=tk.Label(self.left_frame, width=60, text='Мои плейлисты')#Лейбл с надписью "Мои Плейлисты"
+        self.label=tk.Label(self.left_frame, width=40, text='Мои плейлисты')#Лейбл с надписью "Мои Плейлисты"
         self.label.pack()
 
-        self.pl_list=tk.Listbox(self.left_frame, height=40 , width=60)#Список плейлистов
+        self.pl_list=tk.Listbox(self.left_frame, height=34 , width=40)#Список плейлистов
         self.pl_list.pack(side=tk.LEFT)
 
         self.scroll=tk.Scrollbar(self.left_frame, command=self.pl_list.yview)#Создание полосы прокрутки
@@ -166,8 +165,3 @@ class Pl_Block:
         new_window=tk.Tk()#Создаем новое окно
         block=Playlist(new_window, self.pl_list, self.status)#Создаем экземпляр класса Playlist в этом окне
         new_window.mainloop()#Запускаем цикл окна
-
-window=tk.Tk()
-
-block=Pl_Block(window)
-window.mainloop()

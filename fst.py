@@ -3,13 +3,15 @@ import tkinter as tk
 
 import pygame.mixer
 
-from functions import add_track,play_pause,plus_volume,minus_volume
+#from functions import add_track,play_pause,plus_volume,minus_volume
 from tkinter import messagebox
 import pygame as pg
 import easygui as eg
 import time as tm
 import threading
 import sqlite3
+
+from playlist_list import Pl_Block
 
 class TimeDude:
     def __init__(self,tie = 0):
@@ -151,6 +153,23 @@ class GUI2:
         self.queue_playlist_frame = tk.Frame(self.songs_scroll_frame)
         self.queue_playlist_frame.pack(expand=True, padx=10,fill="both")
 
+        self.left_qpf=tk.Frame(self.queue_playlist_frame)
+        self.left_qpf.pack(side=tk.LEFT)
+
+        self.right_qpf = tk.Frame(self.queue_playlist_frame)
+        self.right_qpf.pack(side=tk.LEFT)
+
+        self.cp_label=tk.Label(self.left_qpf, width=60, text='Текущий плейлист')
+        self.cp_label.pack()
+
+        self.current_playlist=tk.Listbox(self.left_qpf, height=34, width=60)
+        self.current_playlist.pack(side=tk.LEFT)
+
+        self.scroll = tk.Scrollbar(self.left_qpf, command=self.current_playlist.yview)
+        self.scroll.pack(side=tk.LEFT, fill=tk.Y)
+        self.current_playlist.config(yscrollcommand=self.scroll.set)
+
+        self.playlist_manage=Pl_Block(self.right_qpf)
 
 
         self.prev1_button = tk.Button(self.buttons_collumn_frame, text="lst_tst", command=self.play_selected_track, height=2, width=4)
@@ -165,8 +184,8 @@ class GUI2:
         self.repeat_button = tk.Button(self.buttons_collumn_frame, text="( )", command=self.repeat_track, height=2, width=4)
         self.repeat_button.pack(padx=0, pady=2, ipady=5, ipadx=5, expand=True)
 
-        self.label2 = tk.Label(self.queue_playlist_frame, text="playlists block", bg="red")
-        self.label2.pack(ipady=275, ipadx=400, expand=True, fill="both")
+        #self.label2 = tk.Label(self.queue_playlist_frame, text="playlists block", bg="red")
+        #self.label2.pack(ipady=275, ipadx=400, expand=True, fill="both")
 
         self.frame2 = tk.Frame()
         self.frame2.pack(fill="x", ipadx=100)
@@ -245,6 +264,18 @@ class GUI2:
         if self.add_track():
             a= "\\"
             self.box.insert("end",str(self.track_number)+self.music_file.split(a)[-1])
+
+            with sqlite3.connect("tracks.db") as conn:
+                cursor = conn.cursor()
+                sn = self.music_file.split(a)[-1]
+                cursor.execute("""
+                INSERT INTO tracks
+                (name, path)
+                VALUES (?, ?);
+                """, (sn, self.music_file))
+            cursor.close()
+            conn.close()
+
             self.track_number = self.track_number + 1
         else:
             messagebox.showerror("Ошибка","Неверный формат файла")
