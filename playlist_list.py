@@ -6,9 +6,11 @@ from new_pl_create import Playlist
 
 #Класс - окно управление плейлистами
 class Pl_Block:
-    def __init__(self, window):
+    def __init__(self, window, playlist):
         self.status=[True]#это поле позволит отслеживать, открыты ли какие-то из окн редактирования, создания или просмотра плейлиста, чтобы не дать пользователю открыть другие окна, пока тот не закроет эти
         self.win=window
+        self.playlist=playlist
+#        self.win.protocol("WM_DELETE_WINDOW", self.on_closing)#Изменяем функцию при закрытии родительского окна, чтобы оно запросило подтверждение при закрытии и закрылось только в том случае, если нет открытых окон
 
         #Фреймы класса
         self.left_frame=tk.Frame(window)#Левый фрейм
@@ -37,6 +39,9 @@ class Pl_Block:
 
         self.del_btn = tk.Button(self.right_frame, text='delete', command=self.pl_dell, width=20)#Кнопка удаления плейлиста
         self.del_btn.pack()
+
+        self.play_btn = tk.Button(self.right_frame, text='start', command=self.play, width=20)# Кнопка запуска плейлиста
+        self.play_btn.pack()
 
         self.create_btn = tk.Button(self.right_frame, text='create new playlist', command=self.pl_create, width=20)#Кнопка создания плейлиста
         self.create_btn.pack()
@@ -165,3 +170,37 @@ class Pl_Block:
         new_window=tk.Tk()#Создаем новое окно
         block=Playlist(new_window, self.pl_list, self.status)#Создаем экземпляр класса Playlist в этом окне
         new_window.mainloop()#Запускаем цикл окна
+
+    def play(self):
+        if not self.status[0]:#Если статус [False], то ничего не происходит
+            return
+        if len(list(self.pl_list.curselection())) > 0:
+            i = list(self.pl_list.curselection())[0]  # Получаем позицию выбранного плейлиста в списке плейлистов
+            tname = self.pl_list.get(i)  # Получаем имя этого плейлиста
+            with sqlite3.connect('playlists.db') as conn:
+                cursor=conn.cursor()
+                cursor.execute('''
+                SELECT tracks FROM playlists
+                WHERE name = ?
+                ''',(tname,))
+                rows=cursor.fetchall()
+                for row in rows:
+                    tracks=row[0]
+                    tracks=tracks.split('_')
+            cursor.close()
+            conn.close()
+            path_list=[]
+            self.playlist.delete(0,tk.END)
+            with sqlite3.connect('tracks.db') as conn:
+                cursor=conn.cursor()
+                for i in tracks:
+                    cursor.execute('''SELECT name, path FROM TRACKS
+                WHERE id = ?
+                ''', (i,))
+                    rows=cursor.fetchall()
+                    for row in rows:
+                        name,path=row
+                        self.playlist.insert(tk.END, name)
+                        path_list.append(path)
+            cursor.close()
+            conn.close()

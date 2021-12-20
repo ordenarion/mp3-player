@@ -169,7 +169,7 @@ class GUI2:
         self.scroll.pack(side=tk.LEFT, fill=tk.Y)
         self.current_playlist.config(yscrollcommand=self.scroll.set)
 
-        self.playlist_manage=Pl_Block(self.right_qpf)
+        self.playlist_manage=Pl_Block(self.right_qpf, self.current_playlist)
 
 
         self.prev1_button = tk.Button(self.buttons_collumn_frame, text="lst_tst", command=self.play_selected_track, height=2, width=4)
@@ -347,7 +347,6 @@ class GUI2:
         b = self.counter
         if a != b:
             self.counter = a
-        if abs(pg.mixer.music.get_pos() - a * 1000) > 1000:
             pg.mixer.music.set_pos(a)
 
     def change_pause_play_icon(self):
