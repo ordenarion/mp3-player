@@ -106,7 +106,9 @@ class GUI2:
         self.nextQ = False
         self.prevQ = False
         self.track_list = []
+        self.track_list2=[]
         self.track_number = 0
+        self.current_playlist_path=[]
         self.track_len = 0
         self.flag = False
         self.counter =-1
@@ -140,12 +142,13 @@ class GUI2:
         self.songs_scroll_frame = tk.Frame()
         self.songs_scroll_frame.pack(expand=True, fill="both", pady=10, padx=10, side="top")
 
-        self.box = tk.Listbox(self.songs_scroll_frame, selectmode="single",font=("Times",10))  # "extended"
-        self.box.pack(side="left", padx=15, pady=15, ipady=200, ipadx=100, fill="both", expand=True)
+        self.all_tracks = tk.Listbox(self.songs_scroll_frame, selectmode="single",font=("Times",10))  # "extended"
+        self.all_tracks.pack(side="left", padx=15, pady=15, ipady=200, ipadx=100, fill="both", expand=True)
 
-        self.scroll = tk.Scrollbar(self.songs_scroll_frame, command=self.box.yview)
+
+        self.scroll = tk.Scrollbar(self.songs_scroll_frame, command=self.all_tracks.yview)
         self.scroll.pack(side="left", ipady=255, )
-        self.box.config(yscrollcommand=self.scroll.set)
+        self.all_tracks.config(yscrollcommand=self.scroll.set)
 
         self.buttons_collumn_frame = tk.Frame(self.songs_scroll_frame)
         self.buttons_collumn_frame.pack(expand=True, side="left")
@@ -159,18 +162,41 @@ class GUI2:
         self.right_qpf = tk.Frame(self.queue_playlist_frame)
         self.right_qpf.pack(side=tk.LEFT)
 
-        self.cp_label=tk.Label(self.left_qpf, width=60, text='Текущий плейлист')
+        self.cp_label=tk.Label(self.left_qpf, width=60, text='Текущий плейлист:Мои треки')
         self.cp_label.pack()
 
-        self.current_playlist=tk.Listbox(self.left_qpf, height=34, width=60)
-        self.current_playlist.pack(side=tk.LEFT)
+        self.play_all_tracks_button = tk.Button(self.left_qpf, text='Запустить мои треки', command=self.play_my_tracks)
+        self.play_all_tracks_button.pack()
 
-        self.scroll = tk.Scrollbar(self.left_qpf, command=self.current_playlist.yview)
+        self.box=tk.Listbox(self.left_qpf, height=34, width=60)
+        self.box.pack(side=tk.LEFT)
+
+        self.scroll = tk.Scrollbar(self.left_qpf, command=self.box.yview)
         self.scroll.pack(side=tk.LEFT, fill=tk.Y)
-        self.current_playlist.config(yscrollcommand=self.scroll.set)
+        self.box.config(yscrollcommand=self.scroll.set)
 
-        self.playlist_manage=Pl_Block(self.right_qpf, self.current_playlist)
 
+
+        with sqlite3.connect('tracks.db') as conn:
+            cursor=conn.cursor()
+            cursor.execute("""
+            SELECT name, path FROM tracks
+            """)
+            rows=cursor.fetchall()
+            for row in rows:
+                name, path=row
+                self.track_list.append(path)
+                self.track_list2.append(path)
+                self.box.insert(tk.END, str(self.track_number)+name)
+                self.all_tracks.insert(tk.END, name)
+                self.track_number=self.track_number+1
+        cursor.close()
+        conn.close()
+
+        self.playlist_manage=Pl_Block(self.right_qpf)
+
+        self.KEKW_BUTTON=tk.Button(self.playlist_manage.right_frame, text='Start', command=self.start_playlist)
+        self.KEKW_BUTTON.pack()
 
         self.prev1_button = tk.Button(self.buttons_collumn_frame, text="lst_tst", command=self.play_selected_track, height=2, width=4)
         self.prev1_button.pack(padx=2, pady=2, ipady=5, ipadx=5, expand=True)
@@ -211,6 +237,7 @@ class GUI2:
         self.next_button = tk.Button(self.frame3, text=">>",command = self.play_next_song)
         self.next_button.pack(padx=0, pady=10, ipady=5, ipadx=5, side="left")
 
+
         self.song_name = tk.Label(self.frame3, text="song name", bg="green",anchor = "w")
         self.song_name.pack(padx=20, pady=10, ipady=10, ipadx=420, side="left" )
         self.song_name.pack_propagate(False)
@@ -247,6 +274,49 @@ class GUI2:
         # self.label.pack(fill="y")
 
         self.window.mainloop()
+
+    def start_playlist(self):
+        if len(list(self.playlist_manage.pl_list.curselection())) > 0:
+            i = list(self.playlist_manage.pl_list.curselection())[0]  # Получаем позицию выбранного плейлиста в списке плейлистов
+            tname = self.playlist_manage.pl_list.get(i)  # Получаем имя этого плейлиста
+            self.track_list.clear()
+            with sqlite3.connect('playlists.db') as conn:
+                cursor=conn.cursor()
+                cursor.execute('''
+                SELECT tracks FROM playlists
+                WHERE name = ?
+                ''',(tname,))
+                rows=cursor.fetchall()
+                for row in rows:
+                    tracks=row[0]
+                    tracks=tracks.split('_')
+            cursor.close()
+            conn.close()
+            self.box.delete(0,tk.END)
+            with sqlite3.connect('tracks.db') as conn:
+                cursor=conn.cursor()
+                number=0
+                for i in tracks:
+                    cursor.execute('''SELECT name, path FROM TRACKS
+                WHERE id = ?
+                ''', (i,))
+                    rows=cursor.fetchall()
+                    for row in rows:
+                        name,path=row
+                        self.box.insert(tk.END, str(number)+name)
+                        self.track_list.append(path)
+                        number=number+1
+            cursor.close()
+            conn.close()
+            self.cp_label['text']='Текущий плейлист:'+tname
+
+    def play_my_tracks(self):
+        self.cp_label['text']='Текущий плейлист:Мои треки'
+        self.track_list=self.track_list2
+        self.box.delete(0, tk.END)
+        for i in range(0, self.all_tracks.size()):
+            self.box.insert(tk.END, str(i)+self.all_tracks.get(i))
+
     def ad(self):
         while not self.flag:
             t = threading.Thread(target=TimeDude.time_update(self))
@@ -263,8 +333,9 @@ class GUI2:
 
         if self.add_track():
             a= "\\"
-            self.box.insert("end",str(self.track_number)+self.music_file.split(a)[-1])
-
+            if self.cp_label['text']=='Текущий плейлист:Мои треки':
+                self.box.insert("end",str(self.track_number)+self.music_file.split(a)[-1])
+            self.all_tracks.insert("end", self.music_file.split(a)[-1])
             with sqlite3.connect("tracks.db") as conn:
                 cursor = conn.cursor()
                 sn = self.music_file.split(a)[-1]
@@ -283,7 +354,9 @@ class GUI2:
     def add_track(self):
         # открывает проводник, чтобы пользователь смог выбрать музыкальный файл
         self.music_file = eg.fileopenbox()
-        self.track_list.append(self.music_file)
+        if self.cp_label['text'] == 'Текущий плейлист:Мои треки':
+            self.track_list.append(self.music_file)
+        self.track_list2.append(self.music_file)
         return True
         # если файл нужного формата, то он загружается в проигрыватель и возвращается путь файла
         # try:
