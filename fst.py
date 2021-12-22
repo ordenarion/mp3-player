@@ -277,6 +277,10 @@ class GUI2:
 
     def start_playlist(self):
         if len(list(self.playlist_manage.pl_list.curselection())) > 0:
+            try:
+                pg.mixer.music.unload(self.track_list[int(self.box.get(self.id)[0])])
+            except:
+                pass
             i = list(self.playlist_manage.pl_list.curselection())[0]  # Получаем позицию выбранного плейлиста в списке плейлистов
             tname = self.playlist_manage.pl_list.get(i)  # Получаем имя этого плейлиста
             self.track_list.clear()
@@ -310,12 +314,53 @@ class GUI2:
             conn.close()
             self.cp_label['text']='Текущий плейлист:'+tname
 
+
+            self.id = 0
+            self.box.selection_set(self.id)
+            self.song_name.config(text=self.box.get(self.id))
+            pg.mixer.music.stop()
+            tmp = self.track_list[int(self.box.get(self.id)[0])]
+            pg.mixer.music.load(tmp)
+            pg.mixer.music.play()
+            self.track_len = round(pg.mixer.Sound(self.track_list[int(self.box.get(self.id)[0])]).get_length())
+            self.song_bar.config(to=self.track_len)
+            # self.not_started = False
+            # self.pause_status = True
+            self.not_started = True
+            self.pause_status = False
+            self.change_pause_play_icon()
+            self.counter = 0
+            self.running = True
+            self.track_len = round(pg.mixer.Sound(tmp).get_length())
+
     def play_my_tracks(self):
+        try:
+            pg.mixer.music.unload(self.track_list[int(self.box.get(self.id)[0])])
+        except:
+            pass
         self.cp_label['text']='Текущий плейлист:Мои треки'
         self.track_list=self.track_list2
         self.box.delete(0, tk.END)
         for i in range(0, self.all_tracks.size()):
             self.box.insert(tk.END, str(i)+self.all_tracks.get(i))
+
+        self.id = 0
+        self.box.selection_set(self.id)
+        self.song_name.config(text=self.box.get(self.id))
+        pg.mixer.music.stop()
+        tmp = self.track_list[int(self.box.get(self.id)[0])]
+        pg.mixer.music.load(tmp)
+        pg.mixer.music.play()
+        self.track_len = round(pg.mixer.Sound(self.track_list[int(self.box.get(self.id)[0])]).get_length())
+        self.song_bar.config(to=self.track_len)
+        # self.not_started = False
+        # self.pause_status = True
+        self.not_started = True
+        self.pause_status = False
+        self.change_pause_play_icon()
+        self.counter = 0
+        self.running = True
+        self.track_len = round(pg.mixer.Sound(tmp).get_length())
 
     def ad(self):
         while not self.flag:
