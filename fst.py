@@ -198,7 +198,7 @@ class GUI2:
         self.KEKW_BUTTON=tk.Button(self.playlist_manage.right_frame, text='Start', command=self.start_playlist)
         self.KEKW_BUTTON.pack()
 
-        self.prev1_button = tk.Button(self.buttons_collumn_frame, text="lst_tst", command=self.play_selected_track, height=2, width=4)
+        self.prev1_button = tk.Button(self.buttons_collumn_frame, text="PC", command=self.play_selected_track, height=2, width=4)
         self.prev1_button.pack(padx=2, pady=2, ipady=5, ipadx=5, expand=True)
 
         self.prev2_button = tk.Button(self.buttons_collumn_frame, text="<<", command=self.state_tst, height=2, width=4)
@@ -238,7 +238,7 @@ class GUI2:
         self.next_button.pack(padx=0, pady=10, ipady=5, ipadx=5, side="left")
 
 
-        self.song_name = tk.Label(self.frame3, text="song name", bg="green",anchor = "w")
+        self.song_name = tk.Label(self.frame3, text="song name",anchor = "w")
         self.song_name.pack(padx=20, pady=10, ipady=10, ipadx=420, side="left" )
         self.song_name.pack_propagate(False)
 
@@ -469,7 +469,7 @@ class GUI2:
 
     def change_pause_play_icon(self):
         if self.pause_status:
-            self.pause_play_button.config(text="ы")
+            self.pause_play_button.config(text="Play")
             self.pause_status = False
         else:
             self.pause_play_button.config(text="||")
@@ -483,7 +483,7 @@ class GUI2:
             try:
                 pg.mixer.music.unload(self.track_list[int(self.box.get(self.id)[0])])
             except:
-                pass
+                print("не прокнуло")
             print(f"id которое убиваем {self.id}")
             #self.running = False
 
